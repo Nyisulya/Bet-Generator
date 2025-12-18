@@ -1,0 +1,340 @@
+:root {
+  /* Premium Color Palette (HSL) */
+  --hue-primary: 220;
+  /* Deep Royal Blue */
+  --hue-accent: 150;
+  /* Success Green */
+  --hue-danger: 340;
+  /* Alert Red */
+
+  --color-bg-dark: hsl(220, 40%, 10%);
+  --color-bg-card: hsl(220, 30%, 15%);
+  --color-bg-input: hsl(220, 25%, 20%);
+
+  --color-primary: hsl(var(--hue-primary), 90%, 60%);
+  --color-primary-hover: hsl(var(--hue-primary), 90%, 50%);
+
+  --color-text-main: hsl(0, 0%, 95%);
+  --color-text-muted: hsl(220, 20%, 70%);
+
+  --color-win: hsl(150, 60%, 45%);
+  --color-draw: hsl(40, 90%, 50%);
+  --color-lose: hsl(340, 70%, 50%);
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+  --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.15);
+
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography */
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: white;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+}
+
+/* Layout Structure */
+.app-container {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Glassmorphism Panel */
+.panel {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar {
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+.main-content {
+  gap: 1.5rem;
+}
+
+/* Inputs */
+input,
+textarea,
+select {
+  background: var(--color-bg-input);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+}
+
+/* Buttons */
+.btn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Slip Grid */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.slip-card {
+  background: var(--color-bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.slip-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.slip-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+}
+
+.outcome {
+  font-weight: 700;
+  width: 24px;
+  text-align: center;
+}
+
+.outcome.WIN-HOME {
+  color: var(--color-win);
+}
+
+.outcome.DRAW {
+  color: var(--color-draw);
+}
+
+.outcome.WIN-AWAY {
+  color: var(--color-lose);
+}
+
+/* Utilities */
+.hidden {
+  display: none !important;
+}
+
+.flex-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.space-y {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* =========================================================================
+   MOBILE OPTIMIZATION (Responsive Media Queries)
+   ========================================================================= */
+
+@media (max-width: 900px) {
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    height: auto;
+    /* Allow scrolling for stacked layout */
+    gap: 1.5rem;
+  }
+
+  .panel {
+    padding: 1rem;
+    max-height: none;
+    /* remove scroll limitation on panels */
+    overflow: visible;
+  }
+
+  .sidebar {
+    position: relative;
+    overflow-y: visible;
+  }
+
+  .main-content {
+    min-height: 500px;
+  }
+
+  /* Make grid results 1 column on very small screens */
+  .results-grid {
+    grid-template-columns: 1fr;
+    max-height: 60vh;
+    /* Force scroll on results area in mobile */
+  }
+
+  /* Touch Targets Sizing */
+  input,
+  textarea,
+  select,
+  .btn {
+    font-size: 16px;
+    /* Prevents iOS zoom on focus */
+    padding: 0.9rem;
+  }
+
+  .btn {
+    width: 100%;
+    /* Full width buttons for ease of use */
+    justify-content: center;
+  }
+
+  .flex-row {
+    flex-wrap: wrap;
+    /* Allow wrapping of controls */
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+  }
+}
