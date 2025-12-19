@@ -12,10 +12,20 @@
  * @property {Array<{matchId: string, outcome: string}>} outcomes
  */
 
+export const MARKET_TYPE = {
+    M_1X2: '1x2',
+    GOALS: 'goals' // Over/Under 2.5
+};
+
 export const OUTCOME = {
+    // 1X2
     HOME: '1',
     DRAW: 'X',
-    AWAY: '2'
+    AWAY: '2',
+
+    // Goals
+    OVER: 'Over 2.5',
+    UNDER: 'Under 2.5'
 };
 
 export const CONSTANTS = {

@@ -145,6 +145,58 @@ class App {
         }
     }
 
+    toggleMarketUI(marketType) {
+        const dist1x2 = document.getElementById('dist-1x2');
+        const distGoals = document.getElementById('dist-goals');
+
+        // Match Builder Inputs
+        const odd1 = document.getElementById('input-odd-1');
+        const oddX = document.getElementById('input-odd-x');
+        const odd2 = document.getElementById('input-odd-2');
+
+        if (marketType === 'goals') {
+            // Show Goals Dist, Hide 1X2 Dist
+            if (dist1x2) dist1x2.classList.add('hidden');
+            if (distGoals) distGoals.classList.remove('hidden');
+
+            // Update Match Builder Placeholders
+            if (odd1) { odd1.placeholder = "Over"; odd1.title = "Over 2.5 Odd"; }
+            if (oddX) { oddX.style.display = 'none'; } // No Draw in Over/Under
+            if (odd2) { odd2.placeholder = "Under"; odd2.title = "Under 2.5 Odd"; }
+        } else {
+            // Show 1X2 Dist, Hide Goals Dist
+            if (distGoals) distGoals.classList.add('hidden');
+            if (dist1x2) dist1x2.classList.remove('hidden');
+
+            // Reset Match Builder
+            if (odd1) { odd1.placeholder = "1"; odd1.title = "Home Odd"; }
+            if (oddX) { oddX.style.display = 'block'; oddX.placeholder = "X"; }
+            if (odd2) { odd2.placeholder = "2"; odd2.title = "Away Odd"; }
+        }
+    }
+
+    getDistributionConfig() {
+        const marketSelect = document.getElementById('market-type');
+        const market = marketSelect ? marketSelect.value : '1x2';
+
+        if (market === 'goals') {
+            return {
+                market: 'goals',
+                over: parseInt(document.getElementById('dist-over').value) || 50,
+                under: parseInt(document.getElementById('dist-under').value) || 50,
+                maxConsecutive: parseInt(document.getElementById('max-consecutive').value) || 3
+            };
+        }
+
+        return {
+            market: '1x2',
+            home: parseInt(document.getElementById('dist-home').value) || 40,
+            draw: parseInt(document.getElementById('dist-draw').value) || 30,
+            away: parseInt(document.getElementById('dist-away').value) || 30,
+            maxConsecutive: parseInt(document.getElementById('max-consecutive').value) || 3
+        };
+    }
+
     setupEventListeners() {
         // Core Buttons
         const btns = {
@@ -167,12 +219,17 @@ class App {
             btns.generate.addEventListener('click', () => this.handleGenerate());
         }
 
-        // 2. Export & Print Logic
         if (btns.print) {
             btns.print.addEventListener('click', () => this.handlePrint());
         }
         if (btns.export) {
             btns.export.addEventListener('click', () => this.handleExport());
+        }
+
+        // 6. Market Toggle Logic
+        const marketSelect = document.getElementById('market-type');
+        if (marketSelect) {
+            marketSelect.addEventListener('change', (e) => this.toggleMarketUI(e.target.value));
         }
 
         // 2. Clear Logic
@@ -542,13 +599,28 @@ class App {
 
         if (targetRow) {
             // Find buttons or clickable odds elements in this row
+            // Find buttons or clickable odds elements in this row
             // BetPawa uses .event-odds-selection or just generic buttons
             const buttons = targetRow.querySelectorAll('.event-odds-selection, .odds-button, button, [class*="selection"]');
 
             let targetBtn = null;
+            
+            // 1X2 Logic
             if (match.choice === '1') targetBtn = buttons[0];
             if (match.choice === 'X') targetBtn = buttons[1];
             if (match.choice === '2') targetBtn = buttons[2];
+
+            // Goals Logic (Approximate)
+            if (match.choice === 'Over 2.5') {
+                 // Try to find the button that says "Over" or is the first button in a 2-button layout (after clicking a tab maybe)
+                 // For now, we assume if it's 1X2 view, this might fail, so we warn user.
+                 // But often popular matches show Over/Under on main page if configured.
+                 // We'll try to find text content.
+                 targetBtn = Array.from(buttons).find(b => b.innerText.includes('Over') || b.innerText.includes('2.5'));
+            }
+            if (match.choice === 'Under 2.5') {
+                 targetBtn = Array.from(buttons).find(b => b.innerText.includes('Under'));
+            }
 
             if (targetBtn) {
                 targetBtn.click();

@@ -20,7 +20,11 @@ export class Generator {
         const slips = [];
 
         for (let i = 0; i < count; i++) {
-            const slip = this._generateSingleSlip(config);
+            // Switch logic based on market type
+            const slip = config.market === 'goals'
+                ? this._generateGoalsSlip(config)
+                : this._generateSingleSlip(config);
+
             slips.push({
                 id: `SLIP-${Date.now()}-${i + 1}`,
                 outcomes: slip
@@ -42,7 +46,7 @@ export class Generator {
 
             // Try to generate a valid outcome for this match
             while (!isValid && attempts < 20) {
-                outcome = this._weightedRandom(config.distribution);
+                outcome = this._weightedRandom(config);
 
                 // Check consecutive constraint
                 if (outcome === lastOutcome) {
@@ -57,8 +61,7 @@ export class Generator {
 
             // Fallback if stuck (should be rare with loose constraints)
             if (!isValid) {
-                // Force a different outcome to break streak
-                outcome = this._forceDifferent(lastOutcome);
+                outcome = this._forceDifferent(lastOutcome, [OUTCOME.HOME, OUTCOME.DRAW, OUTCOME.AWAY]);
             }
 
             // Update trackers
@@ -79,6 +82,47 @@ export class Generator {
         return outcomes;
     }
 
+    _generateGoalsSlip(config) {
+        const outcomes = [];
+        let consecutiveCount = 0;
+        let lastOutcome = null;
+
+        for (const match of this.matches) {
+            let outcome;
+            let isValid = false;
+            let attempts = 0;
+
+            while (!isValid && attempts < 20) {
+                outcome = this._weightedRandomGoals(config);
+
+                if (outcome === lastOutcome) {
+                    if (consecutiveCount >= config.maxConsecutive) {
+                        attempts++;
+                        continue;
+                    }
+                }
+                isValid = true;
+            }
+
+            if (!isValid) {
+                outcome = this._forceDifferent(lastOutcome, [OUTCOME.OVER, OUTCOME.UNDER]);
+            }
+
+            if (outcome === lastOutcome) consecutiveCount++;
+            else {
+                consecutiveCount = 1;
+                lastOutcome = outcome;
+            }
+
+            outcomes.push({
+                matchId: match.id,
+                match: match,
+                outcome: outcome
+            });
+        }
+        return outcomes;
+    }
+
     _weightedRandom(dist) {
         const total = dist.home + dist.draw + dist.away;
         const rand = Math.random() * total;
@@ -88,8 +132,16 @@ export class Generator {
         return OUTCOME.AWAY;
     }
 
-    _forceDifferent(avoidOutcome) {
-        const options = Object.values(OUTCOME).filter(o => o !== avoidOutcome);
+    _weightedRandomGoals(dist) {
+        const total = dist.over + dist.under;
+        const rand = Math.random() * total;
+
+        if (rand < dist.over) return OUTCOME.OVER;
+        return OUTCOME.UNDER;
+    }
+
+    _forceDifferent(avoidOutcome, optionsSource) {
+        const options = optionsSource.filter(o => o !== avoidOutcome);
         return options[Math.floor(Math.random() * options.length)];
     }
 }
