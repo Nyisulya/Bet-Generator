@@ -150,7 +150,9 @@ class App {
         const btns = {
             generate: document.getElementById('btn-generate'),
             addMatch: document.getElementById('btn-add-match'),
-            clear: document.getElementById('btn-clear')
+            clear: document.getElementById('btn-clear'),
+            print: document.getElementById('btn-print'),
+            export: document.getElementById('btn-export')
         };
 
         // Inputs
@@ -163,6 +165,14 @@ class App {
         // 1. Generation Logic
         if (btns.generate) {
             btns.generate.addEventListener('click', () => this.handleGenerate());
+        }
+
+        // 2. Export & Print Logic
+        if (btns.print) {
+            btns.print.addEventListener('click', () => this.handlePrint());
+        }
+        if (btns.export) {
+            btns.export.addEventListener('click', () => this.handleExport());
         }
 
         // 2. Clear Logic
@@ -827,6 +837,54 @@ class App {
 
         // Refresh icons if any (not used in cards currently but good practice)
         // lucide.createIcons(); 
+    }
+
+    handlePrint() {
+        if (this.allSlips.length === 0) {
+            alert("Please generate slips first.");
+            return;
+        }
+        window.print();
+    }
+
+    handleExport() {
+        if (this.allSlips.length === 0) {
+            alert("Please generate slips first.");
+            return;
+        }
+
+        let csv = "Slip ID,Match,Outcome,Odds,Stake,Bonus,Tax,Payout\n";
+
+        this.allSlips.forEach(slip => {
+            slip.outcomes.forEach((o, idx) => {
+                const matchName = o.match.homeTeam && o.match.awayTeam !== 'Away'
+                    ? `${o.match.homeTeam} vs ${o.match.awayTeam}`
+                    : o.match.raw;
+
+                const row = [
+                    slip.id.slice(-6),
+                    matchName.replace(/"/g, '""'),
+                    o.outcome,
+                    (o.match.odds[o.outcome] || 1.0).toFixed(2),
+                    idx === 0 ? slip.stake : "",
+                    idx === 0 ? Math.floor(slip.winBonus) : "",
+                    idx === 0 ? Math.floor(slip.tax) : "",
+                    idx === 0 ? Math.floor(slip.payout) : ""
+                ];
+                csv += row.map(cell => `"${cell}"`).join(",") + "\n";
+            });
+            csv += "\n"; // Blank line between slips
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `betpawa_slips_${new Date().getTime()}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 }
 

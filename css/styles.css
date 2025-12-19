@@ -338,3 +338,72 @@ label {
     font-size: 1.3rem;
   }
 }
+
+/* =========================================================================
+   PRINT STYLES
+   ========================================================================= */
+
+@media print {
+
+  .sidebar,
+  .main-content>header,
+  #pagination-controls,
+  #btn-generate,
+  .btn-sm,
+  .btn-secondary,
+  footer {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .app-container {
+    display: block !important;
+    padding: 0 !important;
+    height: auto !important;
+  }
+
+  .main-content {
+    background: white !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .results-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .slip-card {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #eee !important;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+  .slip-header,
+  .slip-footer {
+    border-color: #eee !important;
+  }
+
+  .slip-header span,
+  .slip-row span,
+  .slip-footer div,
+  .slip-footer span {
+    color: black !important;
+  }
+
+  .outcome {
+    background: #f8f8f8 !important;
+    border: 1px solid #ddd;
+  }
+}
