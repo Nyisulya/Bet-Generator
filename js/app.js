@@ -244,7 +244,16 @@ class App {
         // 6. Market Toggle Logic
         const marketSelect = document.getElementById('market-type');
         if (marketSelect) {
-            marketSelect.addEventListener('change', (e) => this.toggleMarketUI(e.target.value));
+            marketSelect.addEventListener('change', (e) => {
+                this.toggleMarketUI(e.target.value);
+                this.recalcSmartFormula(); // Recalc when market changes
+            });
+        }
+
+        // 7. Config Change Logic (Trigger recalc for Max Goals)
+        const maxGoalsInput = document.getElementById('max-goals');
+        if (maxGoalsInput) {
+            maxGoalsInput.addEventListener('input', () => this.recalcSmartFormula());
         }
 
         // 2. Clear Logic
@@ -529,12 +538,10 @@ class App {
     }
 
     recalcSmartFormula() {
-        // We use the EXACT same logic as updateMatchCount to be consistent
         const input = document.getElementById('match-input');
         if (!input) return;
 
         const count = input.value.split('\n').filter(line => line.trim().length > 0).length;
-
         const slipInput = document.getElementById('slip-count');
         const label = document.querySelector('label[for="slip-count"]');
 
@@ -544,6 +551,32 @@ class App {
             return;
         }
 
+        // Check Market Type
+        const marketSelect = document.getElementById('market-type');
+        const market = marketSelect ? marketSelect.value : '1x2';
+
+        if (market === 'correct_score') {
+            const maxGoals = parseInt(document.getElementById('max-goals').value) || 5;
+            // Calculate permutations: Sum of pairs (h,a) where h+a <= maxGoals
+            // For N=5: 21 slips.
+            let perms = 0;
+            for (let h = 0; h <= maxGoals; h++) {
+                for (let a = 0; a <= maxGoals; a++) {
+                    if (h + a <= maxGoals) perms++;
+                }
+            }
+
+            // Total slips = Matches * Permutations (Single Bets)
+            const totalSlips = count * perms;
+
+            if (slipInput) slipInput.value = totalSlips;
+            if (label) {
+                label.innerHTML = `Slips (Matches ${count} x Perms ${perms}) <span style="color:var(--color-primary); font-size:0.8em">= ${totalSlips.toLocaleString()}</span>`;
+            }
+            return;
+        }
+
+        // Default: 3^n Formula
         let theoretical = Math.pow(3, count);
         const MAX_SAFE_LIMIT = 100000;
         let suggestedSlips = Math.min(theoretical, MAX_SAFE_LIMIT);
