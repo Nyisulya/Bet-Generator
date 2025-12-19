@@ -92,6 +92,7 @@
                             style="width:100%; text-align:left; background: var(--color-bg-input);">
                             <option value="1x2">Match Result (1X2)</option>
                             <option value="goals">Goals (Over/Under 2.5)</option>
+                            <option value="correct_score">Correct Score (Coverage)</option>
                         </select>
                     </div>
 
@@ -150,6 +151,20 @@
                                 <input type="number" id="dist-under" value="50" placeholder="50"
                                     title="Percentage chance of Under 2.5 Goals">
                             </div>
+                        </div>
+
+                        <!-- Correct Score Config (Hidden by default) -->
+                        <div id="dist-cs" class="hidden"
+                            style="border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem;">
+                            <label>Max Total Goals <span
+                                    style="font-weight:normal; font-size:0.75rem; color:rgba(255,255,255,0.5)">(Coverage
+                                    Limit)</span></label>
+                            <input type="number" id="max-goals" value="5" min="0" max="10"
+                                title="Generate all scores where Total Goals <= this number">
+                            <p style="font-size:0.7rem; color:var(--color-text-muted); margin-top:0.25rem;">
+                                System will generate ALL possible score permutations up to this goal sum.
+                                (e.g. 5 = 21 slips per match).
+                            </p>
                         </div>
 
                         <div>
@@ -215,7 +230,7 @@
     </div>
 
     <!-- App Logic -->
-    <script src="js/app.js?v=1.3"></script>
+    <script src="js/app.js?v=1.4"></script>
     <script>
         // Init Icons
         lucide.createIcons();

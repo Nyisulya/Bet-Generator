@@ -148,36 +148,51 @@ class App {
     toggleMarketUI(marketType) {
         const dist1x2 = document.getElementById('dist-1x2');
         const distGoals = document.getElementById('dist-goals');
+        const distCS = document.getElementById('dist-cs');
 
         // Match Builder Inputs
         const odd1 = document.getElementById('input-odd-1');
         const oddX = document.getElementById('input-odd-x');
         const odd2 = document.getElementById('input-odd-2');
 
+        // Reset visibility
+        if (dist1x2) dist1x2.classList.add('hidden');
+        if (distGoals) distGoals.classList.add('hidden');
+        if (distCS) distCS.classList.add('hidden');
+
         if (marketType === 'goals') {
-            // Show Goals Dist, Hide 1X2 Dist
-            if (dist1x2) dist1x2.classList.add('hidden');
             if (distGoals) distGoals.classList.remove('hidden');
 
-            // Update Match Builder Placeholders
-            if (odd1) { odd1.placeholder = "Over"; odd1.title = "Over 2.5 Odd"; }
-            if (oddX) { oddX.style.display = 'none'; } // No Draw in Over/Under
-            if (odd2) { odd2.placeholder = "Under"; odd2.title = "Under 2.5 Odd"; }
+            if (odd1) { odd1.style.display = 'block'; odd1.placeholder = "Over"; odd1.title = "Over 2.5 Odd"; }
+            if (oddX) { oddX.style.display = 'none'; }
+            if (odd2) { odd2.style.display = 'block'; odd2.placeholder = "Under"; odd2.title = "Under 2.5 Odd"; }
+        } else if (marketType === 'correct_score') {
+            if (distCS) distCS.classList.remove('hidden');
+
+            // Hide Odds inputs as they are not used for permutations
+            if (odd1) { odd1.style.display = 'none'; }
+            if (oddX) { oddX.style.display = 'none'; }
+            if (odd2) { odd2.style.display = 'none'; }
         } else {
-            // Show 1X2 Dist, Hide Goals Dist
-            if (distGoals) distGoals.classList.add('hidden');
+            // Default 1X2
             if (dist1x2) dist1x2.classList.remove('hidden');
 
-            // Reset Match Builder
-            if (odd1) { odd1.placeholder = "1"; odd1.title = "Home Odd"; }
+            if (odd1) { odd1.style.display = 'block'; odd1.placeholder = "1"; odd1.title = "Home Odd"; }
             if (oddX) { oddX.style.display = 'block'; oddX.placeholder = "X"; }
-            if (odd2) { odd2.placeholder = "2"; odd2.title = "Away Odd"; }
+            if (odd2) { odd2.style.display = 'block'; odd2.placeholder = "2"; odd2.title = "Away Odd"; }
         }
     }
 
     getDistributionConfig() {
         const marketSelect = document.getElementById('market-type');
         const market = marketSelect ? marketSelect.value : '1x2';
+
+        if (market === 'correct_score') {
+            return {
+                market: 'correct_score',
+                maxGoals: parseInt(document.getElementById('max-goals').value) || 5
+            };
+        }
 
         if (market === 'goals') {
             return {
@@ -612,14 +627,16 @@ class App {
 
             // Goals Logic (Approximate)
             if (match.choice === 'Over 2.5') {
-                 // Try to find the button that says "Over" or is the first button in a 2-button layout (after clicking a tab maybe)
-                 // For now, we assume if it's 1X2 view, this might fail, so we warn user.
-                 // But often popular matches show Over/Under on main page if configured.
-                 // We'll try to find text content.
                  targetBtn = Array.from(buttons).find(b => b.innerText.includes('Over') || b.innerText.includes('2.5'));
             }
             if (match.choice === 'Under 2.5') {
                  targetBtn = Array.from(buttons).find(b => b.innerText.includes('Under'));
+            }
+
+            // Correct Score Logic (e.g. "1-0", "2-1")
+            // Regex to check if choice is digit-digit
+            if (/^\d+-\d+$/.test(match.choice)) {
+                targetBtn = Array.from(buttons).find(b => b.innerText.trim() === match.choice);
             }
 
             if (targetBtn) {

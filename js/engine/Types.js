@@ -14,7 +14,8 @@
 
 export const MARKET_TYPE = {
     M_1X2: '1x2',
-    GOALS: 'goals' // Over/Under 2.5
+    GOALS: 'goals', // Over/Under 2.5
+    CORRECT_SCORE: 'correct_score' // Permutations
 };
 
 export const OUTCOME = {

@@ -19,6 +19,11 @@ export class Generator {
     generate(count, config) {
         const slips = [];
 
+        // Correct Score generates ALL permutations at once, ignoring 'count' loop
+        if (config.market === 'correct_score') {
+            return this._generateCorrectScoreCoverage(config);
+        }
+
         for (let i = 0; i < count; i++) {
             // Switch logic based on market type
             const slip = config.market === 'goals'
@@ -29,6 +34,40 @@ export class Generator {
                 id: `SLIP-${Date.now()}-${i + 1}`,
                 outcomes: slip
             });
+        }
+
+        return slips;
+    }
+
+    _generateCorrectScoreCoverage(config) {
+        const slips = [];
+        const maxGoals = config.maxGoals || 5;
+
+        // Generate scores (0-0 to N-M where N+M <= maxGoals)
+        // e.g. Max 2: 0-0, 0-1, 0-2, 1-0, 1-1, 2-0
+        const scores = [];
+        for (let h = 0; h <= maxGoals; h++) {
+            for (let a = 0; a <= maxGoals; a++) {
+                if (h + a <= maxGoals) {
+                    scores.push(`${h}-${a}`);
+                }
+            }
+        }
+
+        let slipCounter = 1;
+
+        // Create Single Bets for every match and every score
+        for (const match of this.matches) {
+            for (const score of scores) {
+                slips.push({
+                    id: `CS-${Date.now()}-${slipCounter++}`,
+                    outcomes: [{
+                        matchId: match.id,
+                        match: match,
+                        outcome: score
+                    }]
+                });
+            }
         }
 
         return slips;
